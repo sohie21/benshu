@@ -19,15 +19,29 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'ЗАГРУЗИТЬ',
+          tabBarIcon: ({ color, focused }) => <IconSymbol size={28} name={focused ? "square.and.arrow.up.fill":"square.and.arrow.up"} color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'ЧИТАТЬ',
+          tabBarIcon: ({ color, focused }) => <IconSymbol size={28} name={focused ? "book.fill":"book"} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="practice"
+        options={{
+          title: 'ПРАКТИКА',
+          tabBarIcon: ({ color, focused }) => <IconSymbol size={28} name={focused ? "flame.fill":"flame"} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="dictionary"
+        options={{
+          title: 'СЛОВАРЬ',
+          tabBarIcon: ({ color, focused }) => <IconSymbol size={28} name={focused ? "bookmark.fill":"bookmark"} color={color} />,
         }}
       />
     </Tabs>
