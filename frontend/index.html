@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Benshu — чтение китайских текстов с контекстным переводом</title>
+  <meta name="description" content="Benshu: нажмите на слово в китайском тексте — получите значение именно в этом контексте и сохраните карточку для повторения." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%237A2540'/%3E%3Cpath d='M9 10h14M16 6v20M10 20l6-6 6 6M11 25h10' stroke='white' stroke-width='2.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./config.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">К содержимому</a>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-label="Benshu" role="img">
+        <rect x="1" y="1" width="30" height="30" rx="8" fill="currentColor" />
+        <path d="M9 10h14M16 6v20M10 20l6-6 6 6M11 25h10" stroke="var(--surface)" stroke-width="2.2" stroke-linecap="round" fill="none" />
+      </svg>
+      <div>
+        <div class="brand-name">Benshu</div>
+        <div class="brand-sub">читать по-китайски с пониманием контекста</div>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="Разделы">
+      <button class="tab is-active" data-view="read">Чтение</button>
+      <button class="tab" data-view="cards">Карточки <span class="count" id="cardsCount">0</span></button>
+      <button class="tab" data-view="review">Повторение <span class="count count-accent" id="dueCount">0</span></button>
+      <button class="tab" data-view="stats">Метрики</button>
+    </nav>
+    <div class="mode" role="group" aria-label="Режим подсказки">
+      <span class="mode-label">Режим</span>
+      <button class="mode-btn" data-group="benshu" title="Группа B: значение по контексту">Benshu</button>
+      <button class="mode-btn" data-group="control" title="Группа A: обычный словарный список">Словарь</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ЧТЕНИЕ -->
+    <section class="view is-active" id="view-read" aria-label="Чтение">
+      <div class="reader-layout">
+        <div class="reader">
+          <div class="reader-head">
+            <div class="chips" id="textChips" role="tablist" aria-label="Тексты"></div>
+            <div class="reader-tools">
+              <label class="switch"><input type="checkbox" id="pinyinToggle" /> <span>Пиньинь</span></label>
+              <button class="btn btn-ghost btn-sm" id="ownTextBtn">Свой текст</button>
+            </div>
+          </div>
+          <form class="own-text" id="ownTextForm" hidden>
+            <label for="ownText" class="label">Вставьте китайский текст (до 3000 символов)</label>
+            <textarea id="ownText" rows="4" maxlength="3000" placeholder="我想学习中文。"></textarea>
+            <div class="row-end">
+              <span class="hint">Текст не сохраняется на сервере — только разбивается на слова.</span>
+              <button class="btn btn-primary btn-sm" type="submit">Читать</button>
+            </div>
+          </form>
+          <article class="paper" id="paper" aria-live="polite">
+            <div class="paper-meta"><span id="textTitle">Загрузка…</span><span id="textLevel" class="level"></span></div>
+            <div class="text" id="text"></div>
+            <p class="paper-hint">Нажмите на любое слово. Пунктиром подчёркнуты многозначные слова — для них Benshu выбирает значение по контексту.</p>
+          </article>
+        </div>
+
+        <aside class="panel" id="panel" aria-label="Значение слова">
+          <button class="panel-close" id="panelClose" aria-label="Закрыть">×</button>
+          <div id="panelBody">
+            <div class="empty">
+              <div class="empty-glyph" aria-hidden="true">字</div>
+              <p class="empty-title">Выберите слово в тексте</p>
+              <p class="empty-text">Здесь появится значение, подходящее к этому предложению, и кнопка «В карточки».</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- КАРТОЧКИ -->
+    <section class="view" id="view-cards" aria-label="Карточки">
+      <div class="section-head">
+        <h1>Мои карточки</h1>
+        <p class="muted">Каждая карточка хранит значение вместе с предложением, где вы встретили слово.</p>
+      </div>
+      <div class="cards-grid" id="cardsGrid"></div>
+    </section>
+
+    <!-- ПОВТОРЕНИЕ -->
+    <section class="view" id="view-review" aria-label="Повторение">
+      <div class="section-head">
+        <h1>Повторение</h1>
+        <p class="muted">Система Лейтнера: «Помню» — карточка уходит в следующую коробку (1 → 2 → 4 → 8 → 16 дней), «Не помню» — возвращается в первую.</p>
+      </div>
+      <div id="reviewBox"></div>
+    </section>
+
+    <!-- МЕТРИКИ -->
+    <section class="view" id="view-stats" aria-label="Метрики">
+      <div class="section-head">
+        <h1>Метрики эксперимента</h1>
+        <p class="muted">Считаются из журнала событий: A — обычный словарный список, B — Benshu (значение по контексту).</p>
+      </div>
+      <div id="statsBox"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>MVP для проверки гипотез H2 и H3. Анонимный идентификатор хранится в браузере; сохраняются только карточки и события.</span>
+    <span>Словарные данные: собственный мини-словарь; резерв — <a href="https://cc-cedict.org/wiki/" target="_blank" rel="noopener">CC-CEDICT</a> (CC BY-SA 4.0).</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
