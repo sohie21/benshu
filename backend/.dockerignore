@@ -1,0 +1,5 @@
+__pycache__
+*.pyc
+data/benshu.db
+data/cedict_ts.u8
+data/eval_results.json
