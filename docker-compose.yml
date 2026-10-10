@@ -1,0 +1,36 @@
+name: benshu
+
+services:
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - benshu-data:/data          # SQLite: карточки и журнал событий
+    expose:
+      - "8000"
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [api]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:?Укажите DOMAIN в .env}
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./deploy/nginx/${NGINX_MODE:-http}.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./deploy/nginx/benshu-app.inc:/etc/nginx/benshu-app.inc:ro
+      - ./deploy/certbot/www:/var/www/certbot:ro
+      - ./deploy/certbot/conf:/etc/letsencrypt:ro
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  benshu-data:
