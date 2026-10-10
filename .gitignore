@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+backend/data/benshu.db
+backend/data/cedict_ts.u8
+backend/data/eval_results.json
+deploy/certbot/
